@@ -1,0 +1,39 @@
+# Build output
+*.o
+*.obj
+*.exe
+*.out
+*.a
+*.lib
+*.dll
+*.so
+build/
+bin/
+obj/
+dataquest
+
+# Dev-C++
+*.layout
+Makefile.win
+*.dev.bak
+
+# VS Code (keep shared settings, ignore personal ones)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/c_cpp_properties.json
+
+# Debug / sanitizer / valgrind output
+*.dSYM/
+vgcore.*
+*.log
+
+# Runtime game data (saves, leaderboard, logs) - keep the folder, not the files
+data/*
+!data/.gitkeep
+
+# OS files
+Thumbs.db
+desktop.ini
+.DS_Store
