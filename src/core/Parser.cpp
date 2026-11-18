@@ -5,9 +5,9 @@
 // Words we can suggest when the player misspells a command.
 static const char* KNOWN_COMMANDS[] = {
     "move", "look", "pickup", "drop", "use", "attack", "undo", "redo", "hint",
-    "inventory", "leaderboard", "save", "load", "benchmark", "help", "quit"
+    "inventory", "leaderboard", "save", "load", "benchmark", "search", "help", "quit"
 };
-static const int NUM_KNOWN = 16;
+static const int NUM_KNOWN = 17;
 
 String Parser::normaliseDirection(const String& w) {
     if (w == "n" || w == "north") return "north";
@@ -120,6 +120,17 @@ Command Parser::parse(const String& line) {
         return cmd;
     }
 
+    // ---- search the game log: "search goblin"
+    if (w == "search" || w == "find") {
+        cmd.type = CMD_SEARCH;
+        cmd.argument = joinWords(words, 1);
+        if (cmd.argument.empty()) {
+            cmd.valid = false;
+            cmd.message = "Search for what? Try: search <word>";
+        }
+        return cmd;
+    }
+
     // ---- commands with an optional argument
     if (w == "attack" || w == "fight") {
         cmd.type = CMD_ATTACK;
@@ -163,6 +174,7 @@ const char* Parser::commandName(CommandType type) {
         case CMD_HINT: return "hint";               case CMD_INVENTORY: return "inventory";
         case CMD_LEADERBOARD: return "leaderboard"; case CMD_SAVE: return "save";
         case CMD_LOAD: return "load";               case CMD_BENCHMARK: return "benchmark";
+        case CMD_SEARCH: return "search";
         case CMD_HELP: return "help";               case CMD_QUIT: return "quit";
         case CMD_EMPTY: return "(empty)";           case CMD_UNKNOWN: return "(unknown)";
     }
@@ -179,6 +191,7 @@ void Parser::printHelp() {
         "  undo   redo   hint\n"
         "  inventory   leaderboard   benchmark\n"
         "  save [file]   load [file]\n"
+        "  search <word>                  search the game log\n"
         "  help   quit\n";
 }
 

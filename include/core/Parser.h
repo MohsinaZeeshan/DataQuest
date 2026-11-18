@@ -10,14 +10,14 @@
 enum CommandType {
     CMD_MOVE, CMD_LOOK, CMD_PICKUP, CMD_DROP, CMD_USE, CMD_ATTACK,
     CMD_UNDO, CMD_REDO, CMD_HINT, CMD_INVENTORY, CMD_LEADERBOARD,
-    CMD_SAVE, CMD_LOAD, CMD_BENCHMARK, CMD_HELP, CMD_QUIT,
+    CMD_SAVE, CMD_LOAD, CMD_BENCHMARK, CMD_SEARCH, CMD_HELP, CMD_QUIT,
     CMD_EMPTY,      // the player just pressed Enter
     CMD_UNKNOWN     // not a command (message holds the error / suggestion)
 };
 
 struct Command {
     CommandType type;
-    String argument;   // "north", "rusty sword", "goblin", "savegame.txt" ...
+    String argument;   // "north", "rusty sword", "goblin", "savegame.txt", search word ...
     bool valid;        // false if the command was known but used wrongly
     String message;    // error text to show the player when !valid or CMD_UNKNOWN
 
@@ -29,6 +29,8 @@ public:
     // Examples:
     //   "move north" / "go n" / "n"  -> CMD_MOVE, argument "north"
     //   "pick up Rusty Sword"        -> CMD_PICKUP, argument "rusty sword"
+    //   "search goblin"              -> CMD_SEARCH, argument "goblin"
+    //                                   (game calls log.search(cmd.argument, KMP))
     //   "mvoe north"                 -> CMD_UNKNOWN, "Did you mean 'move'?"
     static Command parse(const String& line);
     static const char* commandName(CommandType type);

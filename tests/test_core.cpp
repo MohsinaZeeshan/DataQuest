@@ -12,6 +12,8 @@
 #include "core/History.h"
 #include "core/SaveLoad.h"
 #include "core/Benchmark.h"
+#include "core/Recursion.h"
+#include "core/CoreBenchmarks.h"
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
@@ -205,6 +207,10 @@ static void testParser() {
     CHECK(Parser::parse("move up").valid == false, "bad direction");
     CHECK(Parser::parse("save").argument == "data/savegame.txt", "save default file");
     CHECK(Parser::parse("").type == CMD_EMPTY, "empty line");
+    c = Parser::parse("search Goblin");
+    CHECK(c.type == CMD_SEARCH && c.valid && c.argument == "goblin", "search command");
+    CHECK(Parser::parse("search").valid == false, "search needs a word");
+    CHECK(Parser::parse("serch goblin").message.find(String("search")) != -1, "suggest search");
     const char* simple[] = { "look", "undo", "redo", "hint", "inventory", "leaderboard", "attack", "load", "quit" };
     CommandType types[] = { CMD_LOOK, CMD_UNDO, CMD_REDO, CMD_HINT, CMD_INVENTORY, CMD_LEADERBOARD, CMD_ATTACK, CMD_LOAD, CMD_QUIT };
     for (int i = 0; i < 9; i++) CHECK(Parser::parse(simple[i]).type == types[i], simple[i]);
@@ -277,45 +283,18 @@ static void testSaveLoad() {
     std::remove("test_bad.txt");
 }
 
+static void testRecursion() {
+    section("Recursion");
+    CHECK(factorial(0) == 1 && factorial(5) == 120 && factorial(20) == 2432902008176640000LL, "factorial");
+    CHECK(fibonacci(0) == 0 && fibonacci(1) == 1 && fibonacci(10) == 55, "fibonacci");
+    CHECK(fibonacciMemo(50) == 12586269025LL && fibonacciMemo(20) == fibonacci(20), "fibonacci memo");
+    CHECK(towerOfHanoi(3, 'A', 'C', 'B', false) == 7 && towerOfHanoi(10, 'A', 'C', 'B', false) == 1023, "hanoi moves");
+    runRecursionDemos();
+}
+
 static void benchmarkDemo() {
-    section("Benchmark harness demo");
-    // String matching on 200,000 random characters from a small alphabet
-    const int N = 200000;
-    char* buf = new char[N + 1];
-    std::srand(42);
-    for (int i = 0; i < N; i++) buf[i] = (char)('a' + std::rand() % 4);
-    buf[N] = '\0';
-    String text(buf);
-    delete[] buf;
-    String pattern("abcdab");
-
-    ResultsTable matchTable("String matching, n = 200000, m = 6");
-    MatchAlgorithm algos[4] = { BRUTE_FORCE, RABIN_KARP, BOYER_MOORE, KMP };
-    for (int a = 0; a < 4; a++) {
-        DynArray<int> pos;
-        MatchFunction fn = getMatcher(algos[a]);
-        int found = 0;
-        double ms = timeFunction([&]() { found = fn(text, pattern, pos); }, 5);
-        matchTable.addRow(matcherName(algos[a]), String("matches: ") + String::fromInt(found), ms);
-    }
-    matchTable.print();
-
-    // Hash table: insert 5000 items in each mode
-    ResultsTable hashTable("Hash table, 5000 inserts + 5000 finds");
-    HashMode modes[3] = { CHAINING, LINEAR_PROBING, DOUBLE_HASHING };
-    for (int m = 0; m < 3; m++) {
-        HashTable* t = nullptr;
-        double ms = timeFunction([&]() {
-            delete t;
-            t = new HashTable(modes[m]);
-            for (int i = 0; i < 5000; i++) t->addItem(Item(String("item") + String::fromInt(i), 1, i));
-            for (int i = 0; i < 5000; i++) t->findItem(String("item") + String::fromInt(i));
-        }, 3);
-        hashTable.addRow(HashTable::modeName(modes[m]),
-                         String("collisions: ") + String::fromInt((int)t->getCollisions()), ms);
-        delete t;
-    }
-    hashTable.print();
+    section("Benchmarks (Module A)");
+    runCoreBenchmarks();
 }
 
 int main() {
@@ -329,6 +308,7 @@ int main() {
     testParser();
     testHistory();
     testSaveLoad();
+    testRecursion();
     benchmarkDemo();
     std::cout << "\n===== " << passed << " passed, " << failed << " failed =====\n";
     return failed == 0 ? 0 : 1;
