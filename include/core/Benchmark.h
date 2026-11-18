@@ -59,12 +59,12 @@ public:
 
     void print() const {
         std::cout << "\n=== " << title << " ===\n";
-        std::cout << std::left << std::setw(24) << "Algorithm" << std::setw(26) << "Detail"
+        std::cout << std::left << std::setw(24) << "Algorithm" << std::setw(32) << "Detail"
                   << std::right << std::setw(12) << "Time (ms)" << "\n";
-        std::cout << "--------------------------------------------------------------\n";
+        std::cout << "--------------------------------------------------------------------\n";
         for (int i = 0; i < rows.size(); i++) {
             std::cout << std::left << std::setw(24) << rows[i].name.c_str()
-                      << std::setw(26) << rows[i].detail.c_str()
+                      << std::setw(32) << rows[i].detail.c_str()
                       << std::right << std::setw(12) << std::fixed << std::setprecision(3)
                       << rows[i].ms << "\n";
         }
