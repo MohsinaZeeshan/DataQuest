@@ -250,8 +250,8 @@ static void testSaveLoad() {
     gs.playerName = "Mohsina";
     gs.playerRow = 4; gs.playerCol = 7; gs.hp = 80; gs.score = 150; gs.turn = 12; gs.seed = 2026;
     HashTable inv;
-    inv.addItem(Item("Rusty Sword", 10, 5));
-    inv.addItem(Item("Health Potion", 1, 20, 3));
+    inv.addItem(Item("Rusty Sword", 10, 5, 1, 101));
+    inv.addItem(Item("Health Potion", 1, 20, 3, 102));
     String msg;
     CHECK(saveGame(file, gs, inv, msg), "save");
     std::cout << msg << "\n";
@@ -261,7 +261,8 @@ static void testSaveLoad() {
     CHECK(loadGame(file, loaded, inv2, msg), "load");
     std::cout << msg << "\n";
     CHECK(loaded.playerName == "Mohsina" && loaded.playerRow == 4 && loaded.score == 150 && loaded.seed == 2026, "state restored");
-    CHECK(inv2.size() == 2 && inv2.findItem("health potion")->quantity == 3, "inventory restored");
+    CHECK(inv2.size() == 2 && inv2.findItem("health potion")->quantity == 3 &&
+          inv2.findItem("rusty sword")->id == 101, "inventory restored (with ids)");
 
     CHECK(!loadGame("no_such_file.txt", loaded, inv2, msg), "missing file");
     std::cout << msg << "\n";

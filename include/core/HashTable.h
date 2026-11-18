@@ -13,12 +13,14 @@
 
 struct Item {
     String name;
+    int id;         // unique item ID (Module B's catalog can key on this)
     int weight;
     int value;
     int quantity;
 
-    Item() : weight(0), value(0), quantity(0) {}
-    Item(const String& n, int w, int v, int q = 1) : name(n), weight(w), value(v), quantity(q) {}
+    Item() : id(0), weight(0), value(0), quantity(0) {}
+    Item(const String& n, int w, int v, int q = 1, int itemId = 0)
+        : name(n), id(itemId), weight(w), value(v), quantity(q) {}
 };
 
 enum HashMode { CHAINING, LINEAR_PROBING, DOUBLE_HASHING };

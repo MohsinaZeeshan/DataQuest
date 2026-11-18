@@ -8,11 +8,12 @@
 //   NAME <player name>
 //   STATE <row> <col> <hp> <score> <turn> <seed>
 //   ITEMS <count>
-//   <name>|<weight>|<value>|<quantity>      (one line per item)
+//   <name>|<id>|<weight>|<value>|<quantity>      (one line per item)
 //   END
 //
 // The dungeon is rebuilt from `seed`, so it does not need to be stored.
-// Module C can add more fields to GameState (e.g. monsters killed) later.
+// Need more fields saved (monsters, quests, ...)? Ask Mohsina: GameState,
+// saveGame and loadGame must all be updated together.
 #ifndef DATAQUEST_SAVELOAD_H
 #define DATAQUEST_SAVELOAD_H
 

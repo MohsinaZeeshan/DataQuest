@@ -19,7 +19,7 @@ bool saveGame(const String& filename, const GameState& state, const HashTable& i
         << state.score << " " << state.turn << " " << state.seed << "\n";
     out << "ITEMS " << items.size() << "\n";
     for (int i = 0; i < items.size(); i++)
-        out << items[i].name << "|" << items[i].weight << "|" << items[i].value << "|"
+        out << items[i].name << "|" << items[i].id << "|" << items[i].weight << "|" << items[i].value << "|"
             << items[i].quantity << "\n";
     out << "END\n";
 
@@ -73,14 +73,14 @@ bool loadGame(const String& filename, GameState& state, HashTable& inventory, St
     if (parts.size() != 2 || !(parts[0] == "ITEMS") || !parts[1].toInt(itemCount) || itemCount < 0)
         return damaged(message, filename, "bad ITEMS line");
 
-    // 5. each item: name|weight|value|qty
+    // 5. each item: name|id|weight|value|qty
     DynArray<Item> items;
     for (int i = 0; i < itemCount; i++) {
         if (!String::readLine(in, line)) return damaged(message, filename, "fewer items than expected");
         line.split('|', parts, false);
         Item it;
-        if (parts.size() != 4 || parts[0].trim().empty() ||
-            !parts[1].toInt(it.weight) || !parts[2].toInt(it.value) || !parts[3].toInt(it.quantity))
+        if (parts.size() != 5 || parts[0].trim().empty() || !parts[1].toInt(it.id) ||
+            !parts[2].toInt(it.weight) || !parts[3].toInt(it.value) || !parts[4].toInt(it.quantity))
             return damaged(message, filename, "bad item line");
         it.name = parts[0].trim();
         items.pushBack(it);
