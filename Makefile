@@ -9,12 +9,8 @@ CXXFLAGS = -std=c++11 -Wall -Wextra -Iinclude
 
 ifeq ($(OS),Windows_NT)
     EXE = .exe
-    RM  = del /Q
-    FIX = $(subst /,\,$1)
 else
     EXE =
-    RM  = rm -f
-    FIX = $1
 endif
 
 TARGET    = dataquest$(EXE)
@@ -41,5 +37,6 @@ tests/%$(EXE): tests/%.cpp $(LIB_SRC) $(HEADERS)
 test: $(TEST_BINS)
 	$(foreach t,$(TEST_BINS),"./$(t)" &&) echo All tests finished
 
+# rm works in Git Bash / Linux; if it is missing (cmd / PowerShell), fall back to del
 clean:
-	-$(RM) $(call FIX,$(TARGET) $(TEST_BINS))
+	-rm -f $(TARGET) $(TEST_BINS) || del /Q $(subst /,\,$(TARGET) $(TEST_BINS))

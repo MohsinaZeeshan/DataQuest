@@ -11,6 +11,8 @@ build/
 bin/
 obj/
 dataquest
+tests/test_*
+!tests/test_*.cpp
 
 # Dev-C++
 *.layout
