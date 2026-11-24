@@ -67,6 +67,12 @@ git clone https://github.com/MohsinaZeeshan/DataQuest.git
 cd DataQuest
 make
 make run
+
+If you don't have make, run this instead:
+Open PowerShell in the DataQuest folder and run:
+
+g++ -Iinclude src/main.cpp src/core/*.cpp src/trees/*.cpp src/game/*.cpp -o dataquest.exe
+.\dataquest.exe
 ```
 
 | Command | Description |
