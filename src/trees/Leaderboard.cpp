@@ -1,6 +1,6 @@
 // Leaderboard.cpp - implementation of Leaderboard from Leaderboard.h.
-#include "Leaderboard.h"
-#include "Common.h"
+#include "trees/Leaderboard.h"
+#include "trees/Common.h"
 #include <cstdio>
 #include <cstring>
 

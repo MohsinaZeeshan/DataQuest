@@ -1,5 +1,5 @@
 // AVL.cpp - implementation of AVL from AVL.h.
-#include "AVL.h"
+#include "trees/AVL.h"
 #include <cstdio>
 
 AVL::Node::Node(int k, int v) : key(k), value(v), left(0), right(0), height(1) {}

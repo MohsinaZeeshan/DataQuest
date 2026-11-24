@@ -24,13 +24,13 @@ struct ListNode {
 // Linear search on a singly linked list. Returns the node, or 0.
 ListNode* linearSearchList(ListNode* head, int key);
 
-// Item search (linear, unsorted inventory).
-int findItemByName(const Item* a, int n, const char* name);
-int findItemByWeight(const Item* a, int n, int w);
-int findItemByValue(const Item* a, int n, int v);
+// CatalogItem search (linear, unsorted inventory).
+int findItemByName(const CatalogItem* a, int n, const char* name);
+int findItemByWeight(const CatalogItem* a, int n, int w);
+int findItemByValue(const CatalogItem* a, int n, int v);
 
 // Binary search on an array already sorted by weight
 // (call sortItemsByWeight first).
-int binarySearchItemByWeight(const Item* a, int n, int w);
+int binarySearchItemByWeight(const CatalogItem* a, int n, int w);
 
 #endif

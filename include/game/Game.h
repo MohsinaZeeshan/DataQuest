@@ -18,9 +18,10 @@
 #include "../core/History.h"
 #include "../core/Parser.h"
 #include "../core/SaveLoad.h"
-#include "../tree/Heap.h"
-#include "../tree/BST.h"
-#include "../tree/AVL.h"
+#include "../trees/Heap.h"
+#include "../trees/BST.h"
+#include "../trees/BTree.h"
+#include "../trees/Leaderboard.h"
 #include "Dungeon.h"
 #include "Graph.h"
 #include "HintSolver.h"
@@ -57,8 +58,11 @@ private:
     Dungeon dungeon;
     RoomGraph roomGraph;
     QuestManager questManager;
-    BST itemCatalog;
-    AVLTree leaderboard;
+    ItemCatalog itemCatalog;     // Module B: BST keyed by item ID
+    Leaderboard leaderboard;     // Module B: AVL tree of scores
+    SaveArchive saveArchive;     // Module B: B-tree (order 3) of save records
+    int nextSaveId;
+    DynArray<Coord> hintPath;    // last path found by the backtracking hint solver
     HashTable inventory;
     MoveHistory moveHistory;
     GameLog gameLog;
@@ -102,13 +106,15 @@ public:
     void handleUndo();
     void handleRedo();
     void handleHint();
-    void handleInventory();
+    void handleInventory(const String& sortBy = "");
     void handleLeaderboard();
     void handleSave(const String& filename);
     void handleLoad(const String& filename);
     void handleCatalog();
     void handleQuests();
     void handleBenchmark();
+    void handleSearch(const String& word);
+    void handleArchive(const String& idText);
 
     // Status checks
     bool isGameOver() const { return gameOver; }
@@ -121,8 +127,8 @@ public:
     Dungeon& getDungeon() { return dungeon; }
     const RoomGraph& getRoomGraph() const { return roomGraph; }
     const QuestManager& getQuestManager() const { return questManager; }
-    const BST& getItemCatalog() const { return itemCatalog; }
-    const AVLTree& getLeaderboard() const { return leaderboard; }
+    ItemCatalog& getItemCatalog() { return itemCatalog; }
+    Leaderboard& getLeaderboard() { return leaderboard; }
     const HashTable& getInventory() const { return inventory; }
     const MoveHistory& getMoveHistory() const { return moveHistory; }
 };

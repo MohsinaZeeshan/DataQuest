@@ -4,14 +4,14 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include "Common.h"
-#include "Heap.h"
-#include "Sort.h"
-#include "Search.h"
-#include "BST.h"
-#include "AVL.h"
-#include "BTree.h"
-#include "Leaderboard.h"
+#include "trees/Common.h"
+#include "trees/Heap.h"
+#include "trees/Sort.h"
+#include "trees/Search.h"
+#include "trees/BST.h"
+#include "trees/AVL.h"
+#include "trees/BTree.h"
+#include "trees/Leaderboard.h"
 
 static int passed = 0, failed = 0;
 #define CHECK(cond) do { if (cond) ++passed; else { ++failed; printf("  FAIL line %d: %s\n", __LINE__, #cond); } } while (0)
@@ -88,9 +88,9 @@ static void testSorts() {
     runOne("quick", quickSort);
     runOne("heap", heapSort);
 
-    Item inv[5] = {Item(1, "sword", 10, 50), Item(2, "potion", 1, 20),
-                   Item(3, "shield", 15, 40), Item(4, "key", 1, 5),
-                   Item(5, "map", 2, 60)};
+    CatalogItem inv[5] = {CatalogItem(1, "sword", 10, 50), CatalogItem(2, "potion", 1, 20),
+                   CatalogItem(3, "shield", 15, 40), CatalogItem(4, "key", 1, 5),
+                   CatalogItem(5, "map", 2, 60)};
     sortItemsByWeight(inv, 5);
     CHECK(inv[0].weight == 1 && inv[4].weight == 15);
     CHECK(inv[0].id == 2 && inv[1].id == 4);  // stable: potion before key
@@ -127,8 +127,8 @@ static void testSearch() {
     ListNode n3 = {30, 0}, n2 = {20, &n3}, n1 = {10, &n2};
     CHECK(linearSearchList(&n1, 20) == &n2);
     CHECK(linearSearchList(&n1, 99) == 0);
-    Item inv[3] = {Item(1, "sword", 10, 50), Item(2, "potion", 1, 20),
-                   Item(3, "shield", 15, 40)};
+    CatalogItem inv[3] = {CatalogItem(1, "sword", 10, 50), CatalogItem(2, "potion", 1, 20),
+                   CatalogItem(3, "shield", 15, 40)};
     CHECK(findItemByName(inv, 3, "potion") == 1);
     CHECK(findItemByName(inv, 3, "bow") == -1);
     CHECK(findItemByWeight(inv, 3, 15) == 2);
@@ -184,9 +184,9 @@ static void testBST() {
     CHECK(big.size() == 0);
 
     ItemCatalog cat;
-    cat.add(Item(3, "shield", 15, 40));
-    cat.add(Item(1, "sword", 10, 50));
-    cat.add(Item(2, "potion", 1, 20));
+    cat.add(CatalogItem(3, "shield", 15, 40));
+    cat.add(CatalogItem(1, "sword", 10, 50));
+    cat.add(CatalogItem(2, "potion", 1, 20));
     cat.printSortedByName();
     cat.printSortedById();
     CHECK(cat.findByName("sword") && cat.findByName("sword")->id == 1);

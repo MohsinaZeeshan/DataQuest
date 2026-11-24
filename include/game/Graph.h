@@ -13,7 +13,7 @@
 #include "../core/Queue.h"
 #include "../core/Stack.h"
 #include "../core/String.h"
-#include "../tree/Heap.h"
+#include "../trees/Heap.h"
 
 struct Edge {
     int u, v;

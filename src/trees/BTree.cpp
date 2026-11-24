@@ -1,5 +1,5 @@
 // BTree.cpp - implementation of BTree and SaveArchive from BTree.h.
-#include "BTree.h"
+#include "trees/BTree.h"
 #include <cstdio>
 #include <cstring>
 

@@ -77,10 +77,10 @@ public:
 
 // ItemCatalog: items stored by ID in a BST, with lookup by name.
 // The BST maps id -> position in a small dynamic array of Items, so the
-// tree code stays in one place and the catalog only owns the Item data.
+// tree code stays in one place and the catalog only owns the CatalogItem data.
 class ItemCatalog {
 private:
-    Item* items;
+    CatalogItem* items;
     int itemCount;
     int itemCap;
     BST byId;  // key = item id, value = index into items[]
@@ -94,10 +94,10 @@ public:
     ItemCatalog();
     ~ItemCatalog();
 
-    void add(const Item& it);
+    void add(const CatalogItem& it);
     bool removeById(int id);
-    Item* findById(int id);
-    Item* findByName(const char* name);  // linear scan over the catalog
+    CatalogItem* findById(int id);
+    CatalogItem* findByName(const char* name);  // linear scan over the catalog
     int size() const;
     void printSortedById();
     void printSortedByName();

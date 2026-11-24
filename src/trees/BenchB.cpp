@@ -1,10 +1,10 @@
 // BenchB.cpp - implementation of the Module B benchmarks in BenchB.h.
-#include "BenchB.h"
-#include "Sort.h"
-#include "Heap.h"
-#include "BST.h"
-#include "AVL.h"
-#include "Common.h"
+#include "trees/BenchB.h"
+#include "trees/Sort.h"
+#include "trees/Heap.h"
+#include "trees/BST.h"
+#include "trees/AVL.h"
+#include "trees/Common.h"
 #include <cstdio>
 #include <cstdlib>
 #include <chrono>

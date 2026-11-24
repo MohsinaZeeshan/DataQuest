@@ -1,17 +1,17 @@
-// Item.cpp - implementation of the Item record in Item.h.
-#include "Item.h"
+// Item.cpp - implementation of the CatalogItem record in Item.h.
+#include "trees/Item.h"
 #include <cstring>
 
-Item::Item() : id(0), weight(0), value(0) {
+CatalogItem::CatalogItem() : id(0), weight(0), value(0) {
     name[0] = '\0';
 }
 
-Item::Item(int i, const char* n, int w, int v) : id(i), weight(w), value(v) {
+CatalogItem::CatalogItem(int i, const char* n, int w, int v) : id(i), weight(w), value(v) {
     copyItemName(name, n);
 }
 
-void swapItems(Item& a, Item& b) {
-    Item t = a;
+void swapItems(CatalogItem& a, CatalogItem& b) {
+    CatalogItem t = a;
     a = b;
     b = t;
 }

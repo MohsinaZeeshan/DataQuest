@@ -30,9 +30,9 @@ void quickSort(int* a, int n);
 
 // Inventory sorting (Items). Weight / value sorts are stable merge sorts
 // unless the name says Quick / Radix.
-void sortItemsByWeight(Item* a, int n);
-void sortItemsByValue(Item* a, int n);
-void sortItemsByWeightQuick(Item* a, int n);
-void sortItemsByValueRadix(Item* a, int n);
+void sortItemsByWeight(CatalogItem* a, int n);
+void sortItemsByValue(CatalogItem* a, int n);
+void sortItemsByWeightQuick(CatalogItem* a, int n);
+void sortItemsByValueRadix(CatalogItem* a, int n);
 
 #endif

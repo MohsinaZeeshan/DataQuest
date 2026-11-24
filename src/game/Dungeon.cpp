@@ -189,8 +189,11 @@ void Dungeon::generate(int targetRooms, int randomSeed) {
 
     // 5. Place Monsters in intermediate rooms
     const char* monsterNames[] = { "Goblin", "Skeleton", "Orc Warrior", "Cave Spider", "Dungeon Golem" };
-    int mHp[]    = { 25, 35, 50, 20, 80 };
-    int mAtk[]   = { 6, 9, 14, 8, 18 };
+    // Dungeon Golem guards the exit. At 80 HP / 18 attack it needed 7 player hits
+    // and dealt 108 damage first, so the game could not be won without a lucky
+    // sword. At 60 HP / 14 attack it costs about 56 HP: beatable after healing.
+    int mHp[]    = { 25, 35, 50, 20, 60 };
+    int mAtk[]   = { 6, 9, 14, 8, 14 };
     int mSpeed[] = { 12, 10, 8, 15, 5 };
 
     int mId = 1;

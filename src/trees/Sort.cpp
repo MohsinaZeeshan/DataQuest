@@ -1,6 +1,6 @@
 // Sort.cpp - implementation of the sorts in Sort.h.
-#include "Sort.h"
-#include "Common.h"
+#include "trees/Sort.h"
+#include "trees/Common.h"
 
 // ---------------- Simple O(n^2) sorts ----------------
 void bubbleSort(int* a, int n) {
@@ -137,7 +137,7 @@ void quickSort(int* a, int n) {
 
 // ---------------- Inventory sorting (Items) ----------------
 // byWeight: 0 = weight, 1 = value. Shared merge / quick helpers.
-static void mergeItemsRec(Item* a, Item* tmp, int lo, int hi, int byWeight) {
+static void mergeItemsRec(CatalogItem* a, CatalogItem* tmp, int lo, int hi, int byWeight) {
     if (hi - lo < 2) return;
     int mid = lo + (hi - lo) / 2;
     mergeItemsRec(a, tmp, lo, mid, byWeight);
@@ -154,14 +154,14 @@ static void mergeItemsRec(Item* a, Item* tmp, int lo, int hi, int byWeight) {
     for (k = lo; k < hi; ++k) a[k] = tmp[k];
 }
 
-static void mergeItemsBy(Item* a, int n, int byWeight) {
+static void mergeItemsBy(CatalogItem* a, int n, int byWeight) {
     if (n < 2) return;
-    Item* tmp = new Item[n];
+    CatalogItem* tmp = new CatalogItem[n];
     mergeItemsRec(a, tmp, 0, n, byWeight);
     delete[] tmp;
 }
 
-static void quickItemsRec(Item* a, int lo, int hi, int byWeight) {
+static void quickItemsRec(CatalogItem* a, int lo, int hi, int byWeight) {
     while (lo < hi) {
         int mid = lo + (hi - lo) / 2;
         int keyLo = byWeight ? a[lo].weight : a[lo].value;
@@ -170,7 +170,7 @@ static void quickItemsRec(Item* a, int lo, int hi, int byWeight) {
         if (keyMid < keyLo) swapItems(a[mid], a[lo]);
         if (keyHi < keyLo) swapItems(a[hi], a[lo]);
         if (keyHi < keyMid) swapItems(a[hi], a[mid]);
-        Item pivot = a[mid];
+        CatalogItem pivot = a[mid];
         int pivotKey = byWeight ? pivot.weight : pivot.value;
         int i = lo, j = hi;
         while (i <= j) {
@@ -192,13 +192,13 @@ static void quickItemsRec(Item* a, int lo, int hi, int byWeight) {
     }
 }
 
-void sortItemsByWeight(Item* a, int n) { mergeItemsBy(a, n, 1); }  // stable
-void sortItemsByValue(Item* a, int n) { mergeItemsBy(a, n, 0); }
-void sortItemsByWeightQuick(Item* a, int n) {
+void sortItemsByWeight(CatalogItem* a, int n) { mergeItemsBy(a, n, 1); }  // stable
+void sortItemsByValue(CatalogItem* a, int n) { mergeItemsBy(a, n, 0); }
+void sortItemsByWeightQuick(CatalogItem* a, int n) {
     if (n > 1) quickItemsRec(a, 0, n - 1, 1);
 }
 
-void sortItemsByValueRadix(Item* a, int n) {
+void sortItemsByValueRadix(CatalogItem* a, int n) {
     if (n < 2) return;
     int mn = a[0].value, mx = a[0].value;
     for (int i = 1; i < n; ++i) {
@@ -206,7 +206,7 @@ void sortItemsByValueRadix(Item* a, int n) {
         if (a[i].value > mx) mx = a[i].value;
     }
     long long range = (long long)mx - mn;
-    Item* out = new Item[n];
+    CatalogItem* out = new CatalogItem[n];
     for (long long exp = 1; range / exp > 0; exp *= 10) {
         int cnt[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         for (int i = 0; i < n; ++i) cnt[((a[i].value - mn) / exp) % 10]++;

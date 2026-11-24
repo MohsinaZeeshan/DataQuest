@@ -5,9 +5,10 @@
 // Words we can suggest when the player misspells a command.
 static const char* KNOWN_COMMANDS[] = {
     "move", "look", "pickup", "drop", "use", "attack", "undo", "redo", "hint",
-    "inventory", "leaderboard", "save", "load", "benchmark", "search", "help", "quit"
+    "inventory", "leaderboard", "save", "load", "benchmark", "search", "quests",
+    "catalog", "archive", "help", "quit"
 };
-static const int NUM_KNOWN = 17;
+static const int NUM_KNOWN = 20;
 
 String Parser::normaliseDirection(const String& w) {
     if (w == "n" || w == "north") return "north";
@@ -149,7 +150,22 @@ Command Parser::parse(const String& line) {
     if (w == "undo")                              { cmd.type = CMD_UNDO; return cmd; }
     if (w == "redo")                              { cmd.type = CMD_REDO; return cmd; }
     if (w == "hint")                              { cmd.type = CMD_HINT; return cmd; }
-    if (w == "inventory" || w == "inv" || w == "i") { cmd.type = CMD_INVENTORY; return cmd; }
+    if (w == "inventory" || w == "inv" || w == "i") {
+        cmd.type = CMD_INVENTORY;
+        cmd.argument = joinWords(words, 1);      // optional: "weight" or "value" to sort
+        if (!cmd.argument.empty() && !(cmd.argument == "weight") && !(cmd.argument == "value")) {
+            cmd.valid = false;
+            cmd.message = "Sort the inventory by what? Try: inventory weight / inventory value";
+        }
+        return cmd;
+    }
+    if (w == "archive" || w == "saves") {        // optional save ID to look up
+        cmd.type = CMD_ARCHIVE;
+        cmd.argument = joinWords(words, 1);
+        return cmd;
+    }
+    if (w == "quests" || w == "quest")            { cmd.type = CMD_QUESTS; return cmd; }
+    if (w == "catalog")                           { cmd.type = CMD_CATALOG; return cmd; }
     if (w == "leaderboard" || w == "scores")      { cmd.type = CMD_LEADERBOARD; return cmd; }
     if (w == "benchmark")                         { cmd.type = CMD_BENCHMARK; return cmd; }
     if (w == "help" || w == "?")                  { cmd.type = CMD_HELP; return cmd; }
@@ -174,7 +190,8 @@ const char* Parser::commandName(CommandType type) {
         case CMD_HINT: return "hint";               case CMD_INVENTORY: return "inventory";
         case CMD_LEADERBOARD: return "leaderboard"; case CMD_SAVE: return "save";
         case CMD_LOAD: return "load";               case CMD_BENCHMARK: return "benchmark";
-        case CMD_SEARCH: return "search";
+        case CMD_SEARCH: return "search";           case CMD_QUESTS: return "quests";
+        case CMD_CATALOG: return "catalog";         case CMD_ARCHIVE: return "archive";
         case CMD_HELP: return "help";               case CMD_QUIT: return "quit";
         case CMD_EMPTY: return "(empty)";           case CMD_UNKNOWN: return "(unknown)";
     }
@@ -189,8 +206,9 @@ void Parser::printHelp() {
         "  pick up <item>   drop <item>   use <item>\n"
         "  attack [monster]\n"
         "  undo   redo   hint\n"
-        "  inventory   leaderboard   benchmark\n"
-        "  save [file]   load [file]\n"
+        "  inventory [weight|value]       list items (optionally sorted)\n"
+        "  leaderboard   quests   catalog   benchmark\n"
+        "  save [file]   load [file]   archive [save id]\n"
         "  search <word>                  search the game log\n"
         "  help   quit\n";
 }

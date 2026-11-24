@@ -140,7 +140,11 @@ bool RoomGraph::isFullyConnected(int start) const {
     return visitedCount == numVertices;
 }
 
-// Dijkstra shortest path using Hamdan's MinHeap
+// Dijkstra shortest path using Hamdan's MinHeap.
+// His MinHeap stores plain ints, so each entry packs (distance, room) into one
+// number: packed = dist * numVertices + room. The smallest packed value is the
+// smallest distance, and room = packed % numVertices gets the room back.
+// (Dungeon distances are small, so this never overflows an int.)
 bool RoomGraph::dijkstra(int start, int target, DynArray<int>& outPath, int& outTotalDist) const {
     outPath.clear();
     outTotalDist = -1;
@@ -163,12 +167,13 @@ bool RoomGraph::dijkstra(int start, int target, DynArray<int>& outPath, int& out
     }
 
     dist[start] = 0;
-    MinHeap<int> minHeap(numVertices * 2);
-    minHeap.insert(start, 0);
+    MinHeap minHeap(numVertices * 2);
+    minHeap.insert(0 * numVertices + start);
 
     while (!minHeap.isEmpty()) {
-        int u = minHeap.peek();
-        minHeap.extractMin();
+        int packed;
+        minHeap.extract(packed);
+        int u = packed % numVertices;
 
         if (visited[u]) continue;
         visited[u] = true;
@@ -182,7 +187,7 @@ bool RoomGraph::dijkstra(int start, int target, DynArray<int>& outPath, int& out
             if (!visited[v] && dist[u] + w < dist[v]) {
                 dist[v] = dist[u] + w;
                 prev[v] = u;
-                minHeap.insert(v, dist[v]);
+                minHeap.insert(dist[v] * numVertices + v);
             }
         }
     }

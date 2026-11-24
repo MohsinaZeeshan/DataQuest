@@ -210,6 +210,12 @@ static void testParser() {
     c = Parser::parse("search Goblin");
     CHECK(c.type == CMD_SEARCH && c.valid && c.argument == "goblin", "search command");
     CHECK(Parser::parse("search").valid == false, "search needs a word");
+    CHECK(Parser::parse("quests").type == CMD_QUESTS && Parser::parse("catalog").type == CMD_CATALOG, "quests / catalog");
+    c = Parser::parse("inventory weight");
+    CHECK(c.type == CMD_INVENTORY && c.argument == "weight", "inventory weight");
+    CHECK(Parser::parse("inventory colour").valid == false, "inventory bad sort key");
+    c = Parser::parse("archive 2");
+    CHECK(c.type == CMD_ARCHIVE && c.argument == "2", "archive lookup");
     CHECK(Parser::parse("serch goblin").message.find(String("search")) != -1, "suggest search");
     const char* simple[] = { "look", "undo", "redo", "hint", "inventory", "leaderboard", "attack", "load", "quit" };
     CommandType types[] = { CMD_LOOK, CMD_UNDO, CMD_REDO, CMD_HINT, CMD_INVENTORY, CMD_LEADERBOARD, CMD_ATTACK, CMD_LOAD, CMD_QUIT };

@@ -1,10 +1,14 @@
 // Game.cpp - Module C (Ayesha Nehal)
 #include "../../include/game/Game.h"
+#include "../../include/core/CoreBenchmarks.h"
+#include "../../include/trees/BenchB.h"
+#include "../../include/trees/Sort.h"
 #include <iostream>
 #include <cmath>
 
 Game::Game(int gameSeed)
     : dungeon(gameSeed),
+      nextSaveId(1),
       playerName("Ayesha"),
       playerR(1), playerC(1),
       playerHp(100), playerMaxHp(100),
@@ -93,21 +97,23 @@ void Game::setupQuests() {
 }
 
 void Game::setupCatalog() {
-    itemCatalog.insert(CatalogItem(1, "Health Potion", 1, 20));
-    itemCatalog.insert(CatalogItem(2, "Iron Sword", 5, 50));
-    itemCatalog.insert(CatalogItem(3, "Magic Scroll", 1, 40));
-    itemCatalog.insert(CatalogItem(4, "Shield", 4, 35));
-    itemCatalog.insert(CatalogItem(5, "Torch", 2, 10));
-    itemCatalog.insert(CatalogItem(6, "Dungeon Key", 1, 150));
-    itemCatalog.insert(CatalogItem(7, "Mana Elixir", 1, 30));
+    // Hamdan's ItemCatalog: BST keyed by item ID
+    itemCatalog.add(CatalogItem(1, "Health Potion", 1, 20));
+    itemCatalog.add(CatalogItem(2, "Iron Sword", 5, 50));
+    itemCatalog.add(CatalogItem(3, "Magic Scroll", 1, 40));
+    itemCatalog.add(CatalogItem(4, "Shield", 4, 35));
+    itemCatalog.add(CatalogItem(5, "Torch", 2, 10));
+    itemCatalog.add(CatalogItem(6, "Dungeon Key", 1, 150));
+    itemCatalog.add(CatalogItem(7, "Mana Elixir", 1, 30));
 }
 
 void Game::setupLeaderboard() {
-    leaderboard.insert("Arthur", 450);
-    leaderboard.insert("Galahad", 380);
-    leaderboard.insert("Lancelot", 520);
-    leaderboard.insert("Merlin", 600);
-    leaderboard.insert("Robin", 210);
+    // Hamdan's Leaderboard: AVL tree keyed by score
+    leaderboard.add("Arthur", 450);
+    leaderboard.add("Galahad", 380);
+    leaderboard.add("Lancelot", 520);
+    leaderboard.add("Merlin", 600);
+    leaderboard.add("Robin", 210);
 }
 
 // Combat system using studied structures:
@@ -122,13 +128,19 @@ bool Game::resolveCombat(Monster& monster) {
     Combatant p(playerName, playerHp, playerAttack, playerSpeed, true);
     Combatant m(monster.name, monster.hp, monster.attack, monster.speed, false);
 
-    // 1. Max-Heap for Initiative (who acts first)
-    MaxHeap<Combatant> initiativeHeap(4);
-    initiativeHeap.insert(p, p.speed);
-    initiativeHeap.insert(m, m.speed);
+    // 1. Max-Heap for Initiative (who acts first) - Hamdan's MaxHeap.
+    // It stores plain ints, so each entry packs speed and who it is:
+    // key = speed * 2 + 1 for the player, speed * 2 for the monster.
+    // The largest key has the highest speed (on a tie the player goes first).
+    MaxHeap initiativeHeap(4);
+    initiativeHeap.insert(p.speed * 2 + 1);
+    initiativeHeap.insert(m.speed * 2);
 
-    Combatant first = initiativeHeap.extractMax();
-    Combatant second = initiativeHeap.extractMax();
+    int topKey = 0;
+    initiativeHeap.extract(topKey);
+    bool playerFirst = (topKey % 2 == 1);
+    Combatant first = playerFirst ? p : m;
+    Combatant second = playerFirst ? m : p;
 
     std::cout << "Initiative Order: " << first.name << " acts first (Speed "
               << first.speed << ") followed by " << second.name << " (Speed "
@@ -186,7 +198,8 @@ bool Game::resolveCombat(Monster& monster) {
         gameOver = true;
         gameWon = false;
         std::cout << "\nYou were defeated by " << monster.name << " in battle...\n";
-        leaderboard.insert(playerName, score);
+        gameLog.add(String("Defeated by ") + monster.name + ".");
+        leaderboard.add(playerName.c_str(), score);
         return false;
     }
 
@@ -194,6 +207,7 @@ bool Game::resolveCombat(Monster& monster) {
     monster.hp = 0;
     score += 75;
     std::cout << "\nVictory! You defeated " << monster.name << "! (+75 points)\n";
+    gameLog.add(String("Defeated the ") + monster.name + " in combat.");
     dungeon.removeDeadMonsters();
     return true;
 }
@@ -232,6 +246,8 @@ void Game::handleMove(const String& dir) {
     playerR = nr;
     playerC = nc;
     turnCount++;
+    gameLog.add(String("Moved ") + d + " to (" + String::fromInt(playerR) + "," +
+                String::fromInt(playerC) + ").");
 
     // Check if player entered a room
     int roomId = dungeon.getRoomAt(playerR, playerC);
@@ -258,7 +274,8 @@ void Game::handleMove(const String& dir) {
             std::cout << " CONGRATULATIONS! YOU HAVE ESCAPED THE DUNGEON!\n";
             std::cout << " Final Score: " << score << " points in " << turnCount << " turns!\n";
             std::cout << "============================================\n";
-            leaderboard.insert(playerName, score);
+            gameLog.add(String("Escaped the dungeon with ") + String::fromInt(score) + " points.");
+            leaderboard.add(playerName.c_str(), score);
             return;
         } else {
             std::cout << "The Dungeon Exit is sealed shut! You need the 'Dungeon Key' to escape.\n";
@@ -327,6 +344,7 @@ void Game::handlePickUp(const String& itemName) {
         inventory.addItem(pickedItem);
         score += pickedItem.value / 2;
         std::cout << "Picked up " << pickedItem.name << " and stashed it in inventory.\n";
+        gameLog.add(String("Picked up ") + pickedItem.name + ".");
     } else {
         std::cout << "No item named '" << itemName << "' found in this room.\n";
     }
@@ -349,6 +367,7 @@ void Game::handleDrop(const String& itemName) {
     inventory.removeItem(itemName, 1);
     dungeon.addItemToRoom(roomId, dropped);
     std::cout << "Dropped " << dropped.name << " on the room floor.\n";
+    gameLog.add(String("Dropped ") + dropped.name + ".");
 }
 
 void Game::handleUse(const String& itemName) {
@@ -358,14 +377,16 @@ void Game::handleUse(const String& itemName) {
         return;
     }
 
-    String lowerName = it->name.toLower();
+    String usedName = it->name;
+    String lowerName = usedName.toLower();
     if (lowerName.find("potion") != -1 || lowerName.find("elixir") != -1) {
         int healAmt = 35;
         playerHp += healAmt;
         if (playerHp > playerMaxHp) playerHp = playerMaxHp;
-        inventory.removeItem(it->name, 1);
-        std::cout << "You consumed " << it->name << " and restored " << healAmt
+        inventory.removeItem(usedName, 1);   // may delete *it, so use the copied name below
+        std::cout << "You consumed " << usedName << " and restored " << healAmt
                   << " HP! (Current HP: " << playerHp << "/" << playerMaxHp << ")\n";
+        gameLog.add(String("Used ") + usedName + ".");
     } else if (lowerName.find("sword") != -1) {
         playerAttack += 5;
         std::cout << "You brandished " << it->name << "! Attack power increased to "
@@ -412,17 +433,64 @@ void Game::handleRedo() {
     }
 }
 
+// Backtracking finds *a* path to the exit, not the shortest one, so solving
+// again after every step can flip between directions (north, south, north...).
+// Instead we keep the path we found and follow it, and only solve again
+// (recursive backtracking) when the player has stepped off it.
 void Game::handleHint() {
-    String hint = HintSolver::getNextStepHint(dungeon, playerR, playerC, true);
-    std::cout << hint << "\n";
+    Coord here(playerR, playerC);
+    int idx = -1;
+    for (int i = 0; i < hintPath.size(); i++) {
+        if (hintPath[i] == here) { idx = i; break; }
+    }
+    if (idx == -1) {
+        if (!HintSolver::solveRecursive(dungeon, playerR, playerC,
+                                        dungeon.getExitR(), dungeon.getExitC(), hintPath)) {
+            hintPath.clear();
+            std::cout << "No clear path to the dungeon exit could be found from here!\n";
+            return;
+        }
+        idx = 0;
+    }
+    if (idx == hintPath.size() - 1) {
+        std::cout << "You are standing on the dungeon exit!\n";
+        return;
+    }
+    Coord next = hintPath[idx + 1];
+    const char* dir = (next.r < playerR) ? "NORTH" : (next.r > playerR) ? "SOUTH"
+                    : (next.c < playerC) ? "WEST" : "EAST";
+    std::cout << "Dungeon Hint: Proceed " << dir << " (steps remaining to exit: "
+              << (hintPath.size() - 1 - idx) << ").\n";
 }
 
-void Game::handleInventory() {
-    inventory.listItems();
+// "inventory" lists the hash table as is. "inventory weight" / "inventory value"
+// copies the items into an array and sorts it with Hamdan's merge sort.
+void Game::handleInventory(const String& sortBy) {
+    if (sortBy.empty() || inventory.size() == 0) {
+        inventory.listItems();
+        return;
+    }
+    DynArray<Item> items;
+    inventory.toArray(items);
+    int n = items.size();
+    CatalogItem* arr = new CatalogItem[n];
+    for (int i = 0; i < n; i++)
+        arr[i] = CatalogItem(i, items[i].name.c_str(), items[i].weight, items[i].value);
+
+    if (sortBy == "weight") sortItemsByWeight(arr, n);
+    else sortItemsByValue(arr, n);
+
+    std::cout << "Inventory sorted by " << sortBy << " (merge sort):\n";
+    for (int i = 0; i < n; i++) {
+        const Item& original = items[arr[i].id];          // id = index into items[]
+        std::cout << "  " << original.name << " x" << original.quantity
+                  << "  (weight " << original.weight << ", value " << original.value << ")\n";
+    }
+    delete[] arr;
 }
 
 void Game::handleLeaderboard() {
-    leaderboard.printTopN(10);
+    leaderboard.printTop(10);
 }
 
 void Game::handleSave(const String& filename) {
@@ -439,6 +507,11 @@ void Game::handleSave(const String& filename) {
     String fn = filename.empty() ? String("savegame.txt") : filename;
     if (saveGame(fn, st, inventory, msg)) {
         std::cout << "Game successfully saved to " << fn << ".\n";
+        // Record the save in Hamdan's B-tree archive (keyed by save ID)
+        int id = nextSaveId++;
+        saveArchive.addSave(SaveRecord(id, fn.c_str(), score));
+        std::cout << "Archived as save #" << id << " (type 'archive " << id << "' to look it up).\n";
+        gameLog.add(String("Saved the game to ") + fn + ".");
     } else {
         std::cout << "Save error: " << msg << "\n";
     }
@@ -458,14 +531,38 @@ void Game::handleLoad(const String& filename) {
         seed = st.seed;
         dungeon.generate(9, seed);
         setupRoomGraph();
+        hintPath.clear();                     // old hint path belongs to the old map
         std::cout << "Game successfully loaded from " << fn << ".\n";
+        gameLog.add(String("Loaded the game from ") + fn + ".");
     } else {
         std::cout << "Load error: " << msg << "\n";
     }
 }
 
 void Game::handleCatalog() {
-    itemCatalog.printSorted();
+    itemCatalog.printSortedById();
+}
+
+// "search goblin": find the word in the game log with KMP (Module A)
+void Game::handleSearch(const String& word) {
+    std::cout << "Searching the game log for '" << word << "' (KMP):\n";
+    gameLog.search(word, KMP);
+}
+
+// "archive" shows how many saves are archived; "archive 2" looks one up in the B-tree
+void Game::handleArchive(const String& idText) {
+    if (idText.empty()) {
+        std::cout << saveArchive.size() << " save(s) in the archive. Type 'archive <id>' to look one up.\n";
+        return;
+    }
+    int id = 0;
+    if (!idText.toInt(id)) {
+        std::cout << "'" << idText << "' is not a save number.\n";
+        return;
+    }
+    SaveRecord* r = saveArchive.findSave(id);
+    if (r) std::cout << "Save #" << r->id << ": file '" << r->file << "', score " << r->score << "\n";
+    else   std::cout << "No save #" << id << " in the archive.\n";
 }
 
 void Game::handleQuests() {
@@ -484,7 +581,10 @@ void Game::handleQuests() {
 
 void Game::handleBenchmark() {
     std::cout << "\n=== Benchmark and Demonstration Mode ===\n";
-    HintSolver::runDemos(std::cout);
+    HintSolver::runDemos(std::cout);                 // Module C: recursion demos
+    runCoreBenchmarks();                             // Module A: string matching + hash modes
+    std::cout << "\nRunning sorting and BST vs AVL benchmarks (the slow sorts take a few seconds)...\n";
+    runModuleBBenchmarks();                          // Module B: all sorts + BST vs AVL
 }
 
 void Game::run() {
@@ -538,7 +638,7 @@ void Game::run() {
                 handleHint();
                 break;
             case CMD_INVENTORY:
-                handleInventory();
+                handleInventory(cmd.argument);
                 break;
             case CMD_LEADERBOARD:
                 handleLeaderboard();
@@ -552,24 +652,27 @@ void Game::run() {
             case CMD_BENCHMARK:
                 handleBenchmark();
                 break;
+            case CMD_SEARCH:
+                handleSearch(cmd.argument);
+                break;
+            case CMD_QUESTS:
+                handleQuests();
+                break;
+            case CMD_CATALOG:
+                handleCatalog();
+                break;
+            case CMD_ARCHIVE:
+                handleArchive(cmd.argument);
+                break;
             case CMD_HELP:
                 Parser::printHelp();
-                std::cout << "Additional commands:\n";
-                std::cout << "  quests         - View quest chain in topological order\n";
-                std::cout << "  catalog        - View item catalog stored in BST\n";
                 break;
             case CMD_QUIT:
                 std::cout << "Quitting game. Farewell adventurer!\n";
                 gameOver = true;
                 break;
             default:
-                if (line.toLower() == "quests") {
-                    handleQuests();
-                } else if (line.toLower() == "catalog") {
-                    handleCatalog();
-                } else {
-                    std::cout << "Unknown command. Type 'help' for guidance.\n";
-                }
+                std::cout << "Unknown command. Type 'help' for guidance.\n";
                 break;
         }
     }

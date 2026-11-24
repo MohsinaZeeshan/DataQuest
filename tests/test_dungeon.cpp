@@ -15,9 +15,7 @@
 #include "../include/game/Graph.h"
 #include "../include/game/HintSolver.h"
 #include "../include/game/Game.h"
-#include "../include/tree/Heap.h"
-#include "../include/tree/BST.h"
-#include "../include/tree/AVL.h"
+#include "../include/trees/Heap.h"
 #include <iostream>
 #include <cassert>
 
@@ -205,15 +203,17 @@ void testHintSolvers() {
 
 void testCombatStructures() {
     TEST("Combat structures: MaxHeap, CircularList, Queue");
-    // MaxHeap for initiative
-    MaxHeap<String> initiativeHeap(4);
-    initiativeHeap.insert("Goblin", 8);
-    initiativeHeap.insert("Player", 15);
-    initiativeHeap.insert("Boss", 12);
+    // MaxHeap (Hamdan's) for initiative: highest speed comes out first
+    MaxHeap initiativeHeap(4);
+    initiativeHeap.insert(8);    // Goblin
+    initiativeHeap.insert(15);   // Player
+    initiativeHeap.insert(12);   // Boss
 
-    assert(initiativeHeap.extractMax() == "Player");
-    assert(initiativeHeap.extractMax() == "Boss");
-    assert(initiativeHeap.extractMax() == "Goblin");
+    int top = 0;
+    assert(initiativeHeap.extract(top) && top == 15);
+    assert(initiativeHeap.extract(top) && top == 12);
+    assert(initiativeHeap.extract(top) && top == 8);
+    assert(initiativeHeap.isEmpty());
 
     // CircularList for turns
     CircularList<String> turns;

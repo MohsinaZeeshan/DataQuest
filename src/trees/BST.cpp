@@ -1,5 +1,5 @@
 // BST.cpp - implementation of BST and ItemCatalog from BST.h.
-#include "BST.h"
+#include "trees/BST.h"
 #include <cstdio>
 #include <cstring>
 
@@ -193,14 +193,14 @@ ItemCatalog::~ItemCatalog() { delete[] items; }
 
 void ItemCatalog::grow() {
     int ncap = itemCap == 0 ? 8 : itemCap * 2;
-    Item* nd = new Item[ncap];
+    CatalogItem* nd = new CatalogItem[ncap];
     for (int i = 0; i < itemCount; ++i) nd[i] = items[i];
     delete[] items;
     items = nd;
     itemCap = ncap;
 }
 
-void ItemCatalog::add(const Item& it) {
+void ItemCatalog::add(const CatalogItem& it) {
     int* idx = byId.search(it.id);
     if (idx) {
         items[*idx] = it;  // id already exists: replace the item
@@ -228,13 +228,13 @@ bool ItemCatalog::removeById(int id) {
     return true;
 }
 
-Item* ItemCatalog::findById(int id) {
+CatalogItem* ItemCatalog::findById(int id) {
     int* idx = byId.search(id);
     if (!idx) return 0;
     return &items[*idx];
 }
 
-Item* ItemCatalog::findByName(const char* name) {
+CatalogItem* ItemCatalog::findByName(const char* name) {
     if (!name) return 0;
     for (int i = 0; i < itemCount; ++i) {
         if (strcmp(items[i].name, name) == 0) return &items[i];
@@ -252,7 +252,7 @@ void ItemCatalog::printSortedById() {
     int filled = 0;
     byId.inorder(keys, vals, filled);
     for (int i = 0; i < filled; ++i) {
-        Item& it = items[vals[i]];
+        CatalogItem& it = items[vals[i]];
         printf("  #%-3d %-14s weight=%-3d value=%d\n", it.id, it.name, it.weight, it.value);
     }
     delete[] keys;
@@ -263,10 +263,10 @@ void ItemCatalog::printSortedByName() {
     printf("Catalog sorted by name:\n");
     if (itemCount == 0) return;
     // Small catalog: insertion sort by name is enough here.
-    Item* copy = new Item[itemCount];
+    CatalogItem* copy = new CatalogItem[itemCount];
     for (int i = 0; i < itemCount; ++i) copy[i] = items[i];
     for (int i = 1; i < itemCount; ++i) {
-        Item key = copy[i];
+        CatalogItem key = copy[i];
         int j = i - 1;
         while (j >= 0 && strcmp(key.name, copy[j].name) < 0) {
             copy[j + 1] = copy[j];

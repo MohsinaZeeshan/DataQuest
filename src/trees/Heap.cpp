@@ -1,6 +1,6 @@
 // Heap.cpp - implementation of MaxHeap, MinHeap and heapSort from Heap.h.
-#include "Heap.h"
-#include "Common.h"
+#include "trees/Heap.h"
+#include "trees/Common.h"
 
 // ---------------- MaxHeap ----------------
 MaxHeap::MaxHeap(int initialCap) : sz(0), cap(initialCap < 1 ? 1 : initialCap) {

@@ -10,7 +10,9 @@
 enum CommandType {
     CMD_MOVE, CMD_LOOK, CMD_PICKUP, CMD_DROP, CMD_USE, CMD_ATTACK,
     CMD_UNDO, CMD_REDO, CMD_HINT, CMD_INVENTORY, CMD_LEADERBOARD,
-    CMD_SAVE, CMD_LOAD, CMD_BENCHMARK, CMD_SEARCH, CMD_HELP, CMD_QUIT,
+    CMD_SAVE, CMD_LOAD, CMD_BENCHMARK, CMD_SEARCH,
+    CMD_QUESTS, CMD_CATALOG, CMD_ARCHIVE,
+    CMD_HELP, CMD_QUIT,
     CMD_EMPTY,      // the player just pressed Enter
     CMD_UNKNOWN     // not a command (message holds the error / suggestion)
 };

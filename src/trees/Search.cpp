@@ -1,5 +1,5 @@
 // Search.cpp - implementation of the searches in Search.h.
-#include "Search.h"
+#include "trees/Search.h"
 #include <cstring>
 
 int linearSearch(const int* a, int n, int key) {
@@ -48,7 +48,7 @@ int interpolationSearch(const int* a, int n, int key) {
     return -1;
 }
 
-int findItemByName(const Item* a, int n, const char* name) {
+int findItemByName(const CatalogItem* a, int n, const char* name) {
     if (!name) return -1;
     for (int i = 0; i < n; ++i) {
         if (strcmp(a[i].name, name) == 0) return i;
@@ -56,21 +56,21 @@ int findItemByName(const Item* a, int n, const char* name) {
     return -1;
 }
 
-int findItemByWeight(const Item* a, int n, int w) {
+int findItemByWeight(const CatalogItem* a, int n, int w) {
     for (int i = 0; i < n; ++i) {
         if (a[i].weight == w) return i;
     }
     return -1;
 }
 
-int findItemByValue(const Item* a, int n, int v) {
+int findItemByValue(const CatalogItem* a, int n, int v) {
     for (int i = 0; i < n; ++i) {
         if (a[i].value == v) return i;
     }
     return -1;
 }
 
-int binarySearchItemByWeight(const Item* a, int n, int w) {
+int binarySearchItemByWeight(const CatalogItem* a, int n, int w) {
     int lo = 0, hi = n - 1;
     while (lo <= hi) {
         int mid = lo + (hi - lo) / 2;
