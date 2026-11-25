@@ -246,6 +246,7 @@ void Game::handleMove(const String& dir) {
     playerR = nr;
     playerC = nc;
     turnCount++;
+    std::cout << ">> Moved " << d << " to (" << playerR << ", " << playerC << ").\n";
     gameLog.add(String("Moved ") + d + " to (" + String::fromInt(playerR) + "," +
                 String::fromInt(playerC) + ").");
 
@@ -588,15 +589,39 @@ void Game::handleBenchmark() {
 }
 
 void Game::run() {
-    std::cout << "\n============================================\n";
-    std::cout << "       WELCOME TO DATAQUEST: DUNGEON CRAWLER\n";
-    std::cout << "============================================\n";
-    std::cout << "Type 'help' for a full list of commands.\n\n";
+    std::cout << "\n========================================================================================\n";
+    std::cout << "                         WELCOME TO DATAQUEST: DUNGEON CRAWLER\n";
+    std::cout << "                 Built entirely on custom C++ Data Structures & Algorithms\n";
+    std::cout << "========================================================================================\n";
 
     while (!gameOver) {
         dungeon.printMap(playerR, playerC);
-        std::cout << "\n[" << playerName << " | HP: " << playerHp << "/" << playerMaxHp
-                  << " | Score: " << score << " | Pos: (" << playerR << "," << playerC << ")]\n";
+
+        std::cout << "\n========================================================================================\n";
+        std::cout << "  HERO STATUS: " << playerName
+                  << "  |  HP: " << playerHp << "/" << playerMaxHp
+                  << "  |  Score: " << score << " pts"
+                  << "  |  Position: (" << playerR << ", " << playerC << ")"
+                  << "  |  Turn: " << turnCount << "\n";
+        std::cout << "========================================================================================\n";
+        std::cout << "  COMMAND GUIDE (Type any command below & press Enter):\n";
+        std::cout << "  --------------------------------------------------------------------------------------\n";
+        std::cout << "  [Movement]    : n, s, e, w (or 'move north') -> Steps 1 tile (Checks walls & monsters)\n";
+        std::cout << "  [Inspect]     : look                         -> Describes room, floor items & nearby foes\n";
+        std::cout << "  [Items]       : pick up <item>               -> Takes floor item into Hash Table bag\n";
+        std::cout << "                  drop <item>                  -> Places item from inventory onto the floor\n";
+        std::cout << "                  use <item>                   -> Drinks healing potion or equips gear\n";
+        std::cout << "  [Combat]      : attack                       -> Strikes adjacent monster (Max-Heap speed)\n";
+        std::cout << "  [History]     : undo  /  redo                -> Rewinds or replays moves (List & Stack)\n";
+        std::cout << "  [AI Hint]     : hint                         -> Backtracking Solver points path to Exit\n";
+        std::cout << "  [Data Views]  : inventory                    -> Lists items & weight in Hash Table\n";
+        std::cout << "                  quests                       -> Shows quest DAG ordered by Topological Sort\n";
+        std::cout << "                  catalog                      -> Shows all items sorted by BST\n";
+        std::cout << "                  leaderboard                  -> Shows Hall of Fame ranked by AVL Tree\n";
+        std::cout << "  [System]      : benchmark                    -> Runs algorithm stress-tests & timings\n";
+        std::cout << "                  save [file]  /  load [file]  -> Saves or restores game state to file\n";
+        std::cout << "                  help                         -> Prints help  |  quit -> Exit game\n";
+        std::cout << "========================================================================================\n";
         std::cout << "Command > ";
 
         String line;

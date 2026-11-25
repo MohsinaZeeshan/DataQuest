@@ -244,46 +244,63 @@ void Dungeon::removeDeadMonsters() {
 }
 
 void Dungeon::printMap(int playerR, int playerC, std::ostream& os) const {
-    os << "  ";
-    for (int c = 0; c < DUNGEON_WIDTH; c++) os << (c % 10);
     os << "\n";
+    os << "     ";
+    for (int c = 0; c < DUNGEON_WIDTH; c++) {
+        os << (c % 10) << " ";
+    }
+    os << "\n";
+    os << "    +";
+    for (int c = 0; c < DUNGEON_WIDTH; c++) {
+        os << "--";
+    }
+    os << "+\n";
 
     for (int r = 0; r < DUNGEON_HEIGHT; r++) {
-        os << (r < 10 ? " " : "") << r << " ";
+        os << (r < 10 ? " " : "") << r << " | ";
         for (int c = 0; c < DUNGEON_WIDTH; c++) {
+            char tileChar = grid.at(r, c);
+
             if (r == playerR && c == playerC) {
-                os << TILE_PLAYER;
-                continue;
-            }
-
-            // Check monster
-            bool drewMonster = false;
-            for (int m = 0; m < monsters.size(); m++) {
-                if (monsters[m].alive && monsters[m].r == r && monsters[m].c == c) {
-                    os << TILE_MONSTER;
-                    drewMonster = true;
-                    break;
+                tileChar = TILE_PLAYER;
+            } else {
+                // Check monster
+                bool drewMonster = false;
+                for (int m = 0; m < monsters.size(); m++) {
+                    if (monsters[m].alive && monsters[m].r == r && monsters[m].c == c) {
+                        tileChar = TILE_MONSTER;
+                        drewMonster = true;
+                        break;
+                    }
+                }
+                if (!drewMonster) {
+                    // Check exit
+                    if (r == exitR && c == exitC) {
+                        tileChar = TILE_EXIT;
+                    } else {
+                        // Check items in room
+                        int rmId = getRoomAt(r, c);
+                        if (rmId >= 0 && rmId < roomItems.numRows() && roomItems.rowSize(rmId) > 0) {
+                            if (r == rooms[rmId].centerR && c == rooms[rmId].centerC) {
+                                tileChar = TILE_ITEM;
+                            }
+                        }
+                    }
                 }
             }
-            if (drewMonster) continue;
-
-            // Check exit
-            if (r == exitR && c == exitC) {
-                os << TILE_EXIT;
-                continue;
-            }
-
-            // Check items in room
-            int rmId = getRoomAt(r, c);
-            if (rmId >= 0 && rmId < roomItems.numRows() && roomItems.rowSize(rmId) > 0) {
-                if (r == rooms[rmId].centerR && c == rooms[rmId].centerC) {
-                    os << TILE_ITEM;
-                    continue;
-                }
-            }
-
-            os << grid.at(r, c);
+            os << tileChar << " ";
         }
-        os << "\n";
+        os << "|\n";
     }
+
+    os << "    +";
+    for (int c = 0; c < DUNGEON_WIDTH; c++) {
+        os << "--";
+    }
+    os << "+\n";
+
+    os << "  MAP LEGEND:\n";
+    os << "    [@] Player (You)       [M] Monster (Danger!)   [*] Item (Pick Up)\n";
+    os << "    [E] Dungeon Exit       [.] Room Floor          [+] Corridor / Hallway\n";
+    os << "    [#] Solid Wall (Impassable)\n";
 }
